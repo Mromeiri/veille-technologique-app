@@ -69,9 +69,10 @@ from .models import Task, TaskStatus
 @login_required
 def kanban_view(request):
     # Get tasks assigned to the logged-in user
-    tasks = Task.objects.filter(assignments__user=request.user)
+    tasks = Task.objects.filter(assignments__user=request.user).prefetch_related('assignments__user')
 
     return render(request, 'kanban.html', {'tasks': tasks})
+
 
 
 from django.http import JsonResponse
