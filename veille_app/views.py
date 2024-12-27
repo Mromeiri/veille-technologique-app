@@ -66,8 +66,11 @@ from .models import Task
 from django.shortcuts import render
 from .models import Task, TaskStatus
 
+@login_required
 def kanban_view(request):
-    tasks = Task.objects.all()  # Fetch tasks from your database
+    # Get tasks assigned to the logged-in user
+    tasks = Task.objects.filter(assignments__user=request.user)
+
     return render(request, 'kanban.html', {'tasks': tasks})
 
 
