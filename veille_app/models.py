@@ -28,11 +28,25 @@ class Content(models.Model):
     def __str__(self):
         return self.title
 
+# class Task(models.Model):
+#     title = models.CharField(max_length=100)
+#     description = models.TextField(blank=True, null=True)
+#     # assigned_to = models.ForeignKey(User, related_name="tasks", on_delete=models.SET_NULL, null=True)
+#     assigned_to = models.ManyToManyField(User, related_name="tasks", blank=True) 
+#     due_date = models.DateTimeField()
+#     is_completed = models.BooleanField(default=False)
+
+#     def __str__(self):
+#         return self.title
+
+
 class Task(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     due_date = models.DateTimeField()
+    priority = models.CharField(max_length=50, default='Medium')  # Add a default value here
     is_completed = models.BooleanField(default=False)
+    is_in_progress = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title
