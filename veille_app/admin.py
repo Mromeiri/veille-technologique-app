@@ -37,8 +37,8 @@ class TaskAssignmentInline(admin.TabularInline):
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ('title', 'due_date', 'is_completed')
-    list_filter = ('is_completed', 'due_date')
+    list_display = ('title', 'due_date', 'status')
+    list_filter = ('status', 'due_date')
     search_fields = ('title',)
     ordering = ('due_date',)
     inlines = [TaskAssignmentInline]
