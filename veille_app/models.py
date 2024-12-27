@@ -49,11 +49,19 @@ class TaskStatus(models.TextChoices):
     IN_PROGRESS = 'In Progress', 'In Progress'
     COMPLETED = 'Completed', 'Completed'
 
+class TaskPriority(models.TextChoices):
+    LOW = 'Low', 'Low Priority'
+    MEDIUM = 'Medium', 'Medium Priority'
+    HIGH = 'High', 'High Priority'
 class Task(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     due_date = models.DateTimeField()
-    priority = models.CharField(max_length=50, default='Medium')
+    priority = models.CharField(
+        max_length=50,
+        choices=TaskPriority.choices,
+        default=TaskPriority.MEDIUM,
+    )
     status = models.CharField(
         max_length=20,
         choices=TaskStatus.choices,
