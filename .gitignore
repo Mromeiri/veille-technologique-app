@@ -1,8 +1,47 @@
-# Ignore compiled Python files
-*.pyc
-
-# Ignore __pycache__ directories
+# Python bytecode files
 __pycache__/
-
-env/ 
 *.pyc
+*.pyo
+*.pyd
+
+# Django
+*.log
+*.pot
+*.pyc
+*.sqlite3
+*.db
+*.sqlite3-journal
+db.sqlite3
+
+# Virtual environment
+venv/
+.env/
+myenv/
+
+# IDE/Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Test and coverage reports
+*.cover
+*.coverage
+.coverage.*
+nosetests.xml
+coverage.xml
+*.hypothesis/
+
+# Django migrations
+*/migrations/*
+!*/migrations/__init__.py
+
+
+
+# Local settings files
+local_settings.py
+settings_local.py
