@@ -8,5 +8,9 @@ python manage.py makemigrations
 python manage.py migrate
 python manage.py runserver
 
+after creating the setup_groups_permissions.py  execute this : 
+
+python manage.py setup_groups_permissions
+
 
 
