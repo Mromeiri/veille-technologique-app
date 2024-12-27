@@ -40,9 +40,7 @@ coverage.xml
 */migrations/*
 !*/migrations/__init__.py
 
-# Static and media files
-static/
-media/
+
 
 # Local settings files
 local_settings.py
