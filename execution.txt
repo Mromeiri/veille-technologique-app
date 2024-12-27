@@ -1,0 +1,12 @@
+cd veille-technologique-app-main
+python -m venv env
+.\env\Scripts\activate
+python.exe -m pip install --upgrade pip
+pip install django
+pip install django-admin-soft-dashboard
+python manage.py makemigrations
+python manage.py migrate
+python manage.py runserver
+
+
+
