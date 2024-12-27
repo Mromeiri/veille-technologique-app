@@ -59,3 +59,23 @@ class Login(LoginView):
     def form_valid(self, form):
         # Add any extra logic here if needed
         return super().form_valid(form)
+    
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import Task
+import json
+
+@csrf_exempt
+def update_task_status(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        task_id = data.get('task_id')
+        status = data.get('status')
+
+        # Update the task status
+        task = Task.objects.get(id=task_id)
+        task.status = status
+        task.save()
+
+        return JsonResponse({'success': True})

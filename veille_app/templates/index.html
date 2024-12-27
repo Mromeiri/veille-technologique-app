@@ -2,6 +2,7 @@
 {% load i18n static %}
 {% block extrastyle %}
     <link rel="stylesheet" type="text/css" href="{% static "css/forms.css" %}">
+    
 {% endblock %}
 
 
@@ -132,63 +133,140 @@
     }
 </style>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+
+
 </head>
 <body>
 
   <div class="container">
+    <!-- Add New Task Button -->
+    <div class="add-task-button">
+        <a href="{% url 'admin:veille_app_task_add' %}" class="btn btn-primary">Add New Task</a>
+    </div>
+
     <div class="kanban-board">
         <!-- To Do Column -->
-        <div class="kanban-column">
+        <div class="kanban-column" id="todo-column">
             <h4>To Do <span style="margin-left: 180px;">⋮</span></h4>
-            {% for task in tasks_todo %}
-                <div class="kanban-task">
-                    <div class="task-title">{{ task.title }}</div>
-                    <div class="task-meta">
-                        Due: {{ task.due_date|date:"Y-m-d" }}
-                    </div>
-                    <div class="task-dropdown">Edit</div>
-                </div>
-            {% empty %}
-                <p>No tasks in this column.</p>
-            {% endfor %}
+            <ul id="todo-tasks">
+                {% for task in tasks_todo %}
+                    <li class="kanban-task" data-task-id="{{ task.id }}" id="task-{{ task.id }}">
+                        <div class="task-title">{{ task.title }}</div>
+                        <div class="task-meta">
+                            Due: {{ task.due_date|date:"Y-m-d" }}
+                        </div>
+                        <div class="task-dropdown">
+                            <a href="{% url 'admin:veille_app_task_change' task.id %}">Edit</a>
+                        </div>
+                    </li>
+                {% empty %}
+                    <p>No tasks in this column.</p>
+                {% endfor %}
+            </ul>
         </div>
 
         <!-- In Progress Column -->
-        <div class="kanban-column">
+        <div class="kanban-column" id="in-progress-column">
             <h4>In Progress <span style="margin-left: 130px;">⋮</span></h4>
-            {% for task in tasks_in_progress %}
-                <div class="kanban-task">
-                    <div class="task-title">{{ task.title }}</div>
-                    <div class="task-meta">
-                        Due: {{ task.due_date|date:"Y-m-d" }}
-                    </div>
-                    <div class="task-dropdown">Edit</div>
-                </div>
-            {% empty %}
-                <p>No tasks in this column.</p>
-            {% endfor %}
+            <ul id="in-progress-tasks">
+                {% for task in tasks_in_progress %}
+                    <li class="kanban-task" data-task-id="{{ task.id }}" id="task-{{ task.id }}">
+                        <div class="task-title">{{ task.title }}</div>
+                        <div class="task-meta">
+                            Due: {{ task.due_date|date:"Y-m-d" }}
+                        </div>
+                        <div class="task-dropdown">
+                            <a href="{% url 'admin:veille_app_task_change' task.id %}">Edit</a>
+                        </div>
+                    </li>
+                {% empty %}
+                    <p>No tasks in this column.</p>
+                {% endfor %}
+            </ul>
         </div>
 
         <!-- Completed Column -->
-        <div class="kanban-column">
+        <div class="kanban-column" id="completed-column">
             <h4>Completed <span style="margin-left: 130px;">⋮</span></h4>
-            {% for task in tasks_completed %}
-                <div class="kanban-task">
-                    <div class="task-title">{{ task.title }}</div>
-                    <div class="task-meta">
-                        Completed on: {{ task.due_date|date:"Y-m-d" }}
-                    </div>
-                    <div class="task-dropdown">Edit</div>
-                </div>
-            {% empty %}
-                <p>No tasks in this column.</p>
-            {% endfor %}
+            <ul id="completed-tasks">
+                {% for task in tasks_completed %}
+                    <li class="kanban-task" data-task-id="{{ task.id }}" id="task-{{ task.id }}">
+                        <div class="task-title">{{ task.title }}</div>
+                        <div class="task-meta">
+                            Completed on: {{ task.due_date|date:"Y-m-d" }}
+                        </div>
+                        <div class="task-dropdown">
+                            <a href="{% url 'admin:veille_app_task_change' task.id %}">Edit</a>
+                        </div>
+                    </li>
+                {% empty %}
+                    <p>No tasks in this column.</p>
+                {% endfor %}
+            </ul>
         </div>
     </div>
 </div>
-    
 
-    <script>
+<script>
+  // Initialize SortableJS for each column
+  const todoColumn = document.getElementById('todo-tasks');
+  const inProgressColumn = document.getElementById('in-progress-tasks');
+  const completedColumn = document.getElementById('completed-tasks');
+
+  // Make each column sortable
+  new Sortable(todoColumn, {
+      group: 'kanban',  // Enable dragging between columns
+      animation: 150,    // Smooth animation
+      onEnd(evt) {
+          updateTaskStatus(evt.item, 'To Do');
+      }
+  });
+
+  new Sortable(inProgressColumn, {
+      group: 'kanban',
+      animation: 150,
+      onEnd(evt) {
+          updateTaskStatus(evt.item, 'In Progress');
+      }
+  });
+
+  new Sortable(completedColumn, {
+      group: 'kanban',
+      animation: 150,
+      onEnd(evt) {
+          updateTaskStatus(evt.item, 'Completed');
+      }
+  });
+
+  // Update task status in the backend when the task is dropped
+  function updateTaskStatus(taskElement, status) {
+      const taskId = taskElement.getAttribute('data-task-id');
+
+      // Send an AJAX request to update the task status
+      fetch('/update-task-status/', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': '{{ csrf_token }}'
+          },
+          body: JSON.stringify({
+              task_id: taskId,
+              status: status
+          })
+      })
+      .then(response => response.json())
+      .then(data => {
+          console.log('Task status updated successfully');
+      })
+      .catch(error => {
+          console.error('Error updating task status:', error);
+      });
+  }
+</script>
+
+
+<script>
         document.addEventListener("DOMContentLoaded", function() {
             const tasks = document.querySelectorAll('.kanban-task');
             tasks.forEach(task => {
