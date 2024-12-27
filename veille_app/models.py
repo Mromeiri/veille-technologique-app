@@ -40,16 +40,29 @@ class Content(models.Model):
 #         return self.title
 
 
+from django.db import models
+from django.contrib.auth.models import User
+from enum import Enum
+
+class TaskStatus(models.TextChoices):
+    TODO = 'To Do', 'To Do'
+    IN_PROGRESS = 'In Progress', 'In Progress'
+    COMPLETED = 'Completed', 'Completed'
+
 class Task(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     due_date = models.DateTimeField()
-    priority = models.CharField(max_length=50, default='Medium')  # Add a default value here
-    is_completed = models.BooleanField(default=False)
-    is_in_progress = models.BooleanField(default=False)
+    priority = models.CharField(max_length=50, default='Medium')
+    status = models.CharField(
+        max_length=20,
+        choices=TaskStatus.choices,
+        default=TaskStatus.TODO,
+    )
 
     def __str__(self):
         return self.title
+
 
 class TaskAssignment(models.Model):
     task = models.ForeignKey(Task, related_name="assignments", on_delete=models.CASCADE)
