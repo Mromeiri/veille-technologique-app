@@ -59,3 +59,51 @@ class Login(LoginView):
     def form_valid(self, form):
         # Add any extra logic here if needed
         return super().form_valid(form)
+    
+from django.shortcuts import render
+from .models import Task
+
+from django.shortcuts import render
+from .models import Task, TaskStatus
+
+def kanban_view(request):
+    tasks = Task.objects.all()  # Fetch tasks from your database
+    return render(request, 'kanban.html', {'tasks': tasks})
+
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import Task
+import json
+import json
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import Task, TaskStatus
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import Task
+
+@csrf_exempt  # You might need to remove this in production and use proper CSRF token handling
+def update_task_status(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        task_id = data.get('task_id')
+        new_status = data.get('status')
+        if new_status== "in-progress-column":
+            new_status = "In Progress"
+        elif new_status== "to-do-column":
+            new_status = "To Do"
+        else :
+            new_status = "Completed"
+        print(new_status)
+        try:
+            task = Task.objects.get(id=task_id)
+            task.status = new_status
+            task.save()
+            return JsonResponse({'success': True, 'message': 'Task status updated.'})
+        except Task.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Task not found.'})
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+
+
