@@ -150,30 +150,38 @@ class Login(LoginView):
 from django.shortcuts import render
 from .models import Task
 
+
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from .models import Task, TaskStatus
+from django.contrib.auth.models import Group
+from .models import Task
 
 @login_required
 def kanban_view(request):
-    # Get tasks assigned to the logged-in user
-    tasks = Task.objects.filter(assignments__user=request.user).prefetch_related('assignments__user')
+    # Check if the logged-in user is in the 'decideur' group
+    if request.user.groups.filter(name='Décideur').exists():
+        # If user is in 'decideur' group, fetch all tasks
+        tasks = Task.objects.all()
+    else:
+        # If user is not in 'decideur' group, fetch tasks assigned to the logged-in user
+        tasks = Task.objects.filter(assignments__user=request.user).prefetch_related('assignments__user')
 
     return render(request, 'kanban.html', {'tasks': tasks})
 
+# @login_required
+# def kanban_view(request):
+#     # Get tasks assigned to the logged-in user
+#     tasks = Task.objects.filter(assignments__user=request.user).prefetch_related('assignments__user')
+
+#     return render(request, 'kanban.html', {'tasks': tasks})
 
 
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from .models import Task
-import json
+
 import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Task, TaskStatus
 
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from .models import Task
 
 @csrf_exempt  # You might need to remove this in production and use proper CSRF token handling
 def update_task_status(request):

@@ -19,6 +19,7 @@ from veille_app.views import *
 
 urlpatterns = [
     path('', index, name='index'),
+    path('', kanban_view, name='kanban'),
     path('accounts/login/', Login.as_view(), name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('kanban/', kanban_view, name='kanban'),
