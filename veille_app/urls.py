@@ -25,6 +25,8 @@ urlpatterns = [
     path('kanban/', kanban_view, name='kanban'),
     path('update_task_status/', update_task_status, name='update_task_status'),
 
+    path('veilleur/', veilleur_view, name='veilleur'),
+    path('content/', task_content_view, name='task_content'),
 
 ]
 # >>>>>>> origin/main

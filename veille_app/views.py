@@ -207,3 +207,21 @@ def update_task_status(request):
 
 
 # >>>>>>> origin/main
+
+
+from django.shortcuts import render, get_object_or_404
+from .models import Task, Content
+
+def task_content_view(request, task_id):
+    task = get_object_or_404(Task, id=task_id)
+    # Fetch all content related to the task's source
+    contents = Content.objects.filter(source__task=task)
+    return render(request, 'task_content.html', {'task': task, 'contents': contents})
+
+
+@login_required
+def veilleur_view(request):
+    # Get tasks assigned to the logged-in user
+    tasks = Task.objects.filter(assignments__user=request.user).prefetch_related('assignments__user')
+
+    return render(request, 'veilleur.html', {'tasks': tasks})
