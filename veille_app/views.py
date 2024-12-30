@@ -121,24 +121,31 @@
 #     return render(request, 'kanban_board.html', context)
 
 
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
-from .models import Task
+from .models import Content, Task
 
 # Create your views here.
 @login_required
 def index(request):
-    tasks_todo = Task.objects.filter(is_completed=False, is_in_progress=False)
-    tasks_in_progress = Task.objects.filter(is_in_progress=True)
-    tasks_completed = Task.objects.filter(is_completed=True)
-    
-    context = {
-        'tasks_todo': tasks_todo,
-        'tasks_in_progress': tasks_in_progress,
-        'tasks_completed': tasks_completed,
-    }
-    return render(request, 'index.html', context)
+     # Check if the logged-in user is in the 'decideur' group
+    if request.user.groups.filter(name='Décideur').exists():
+        # If user is in 'decideur' group, fetch all tasks
+        tasks = Task.objects.all()
+        tasks_todo = tasks.filter(status='To Do')
+        tasks_in_progress = tasks.filter(status='In Progress')
+        tasks_completed = tasks.filter(status='Completed')
+
+    else:
+        # If user is not in 'decideur' group, fetch tasks assigned to the logged-in user
+        if request.user.groups.filter(name='Veilleur').exists():
+        # If user is in 'decideur' group, fetch all tasks
+        
+            return redirect(veilleur_view)
+        
+
+    return render(request, 'kanban.html', {'tasks': tasks,'tasks_todo':tasks_todo,'tasks_in_progress':tasks_in_progress,'tasks_completed':tasks_completed})
 
 class Login(LoginView):
     template_name = 'auth-login-basic.html'
@@ -158,13 +165,17 @@ from .models import Task
 
 @login_required
 def kanban_view(request):
+
     # Check if the logged-in user is in the 'decideur' group
     if request.user.groups.filter(name='Décideur').exists():
         # If user is in 'decideur' group, fetch all tasks
         tasks = Task.objects.all()
+        
     else:
-        # If user is not in 'decideur' group, fetch tasks assigned to the logged-in user
-        tasks = Task.objects.filter(assignments__user=request.user).prefetch_related('assignments__user')
+        if request.user.groups.filter(name='Veilleur').exists():
+        # If user is in 'decideur' group, fetch all tasks
+        
+            return redirect(veilleur_view)
 
     return render(request, 'kanban.html', {'tasks': tasks})
 
@@ -206,22 +217,21 @@ def update_task_status(request):
     return JsonResponse({'success': False, 'message': 'Invalid request method.'})
 
 
-# >>>>>>> origin/main
-
-
-from django.shortcuts import render, get_object_or_404
-from .models import Task, Content
-
-def task_content_view(request, task_id):
-    task = get_object_or_404(Task, id=task_id)
-    # Fetch all content related to the task's source
-    contents = Content.objects.filter(source__task=task)
-    return render(request, 'task_content.html', {'task': task, 'contents': contents})
-
-
 @login_required
 def veilleur_view(request):
     # Get tasks assigned to the logged-in user
     tasks = Task.objects.filter(assignments__user=request.user).prefetch_related('assignments__user')
+    
+    tasks_todo = tasks.filter(status='To Do')
+    tasks_in_progress = tasks.filter(status='In Progress')
+    tasks_completed = tasks.filter(status='Completed')
 
-    return render(request, 'veilleur.html', {'tasks': tasks})
+    return render(request, 'veilleur.html', {'tasks': tasks,'tasks_todo':tasks_todo,'tasks_in_progress':tasks_in_progress,'tasks_completed':tasks_completed})
+
+
+def task_content(request, task_id):
+    task = get_object_or_404(Task, id=task_id)
+    # Fetch all content related to the task's source
+    contents = Content.objects.filter(source__task=task)
+    return render(request, 'task_content.html', {'task': task, 'contents': contents})
+# >>>>>>> origin/main

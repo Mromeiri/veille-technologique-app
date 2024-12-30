@@ -304,10 +304,7 @@
                 <i class="fas fa-clipboard-list"></i>
                 <h1>Kanban Board</h1>
             </div>
-            <a href="{% url 'admin:veille_app_task_add' %}" class="add-task-btn">
-                <i class="fas fa-plus"></i>
-                Add New Task
-            </a>
+            
         </div>
         
         <div class="kanban-board">
@@ -316,7 +313,7 @@
                 <div class="column-header">
                     <i class="fas fa-list header-icon"></i>
                     <h4>To Do</h4>
-                    <span class="task-count">{{ tasks|length }}</span>
+                    <span class="task-count">{{ tasks_todo|length }}</span>
                 </div>
                 {% for task in tasks %}
                     {% if task.status == 'To Do' %}
@@ -342,14 +339,11 @@
                                 </a>
                             </div> -->
                             <div class="task-actions">
-                                <a href="{% url 'admin:task_content' task.id %}" class="task-btn view-content-btn">
+                                <a href="{% url 'task_content' task.id %}" class="task-btn view-content-btn">
                                     <i class="fas fa-eye"></i>
                                     View Content
                                 </a>
-                                <a href="{% url 'admin:veille_app_task_change' task.id %}" class="task-btn edit-btn">
-                                    <i class="fas fa-edit"></i>
-                                    Edit Task
-                                </a>
+                                
                             </div>                            
                             
                             
@@ -363,7 +357,7 @@
                 <div class="column-header">
                     <i class="fas fa-spinner header-icon"></i>
                     <h4>In Progress</h4>
-                    <span class="task-count">{{ tasks|length }}</span>
+                    <span class="task-count">{{ tasks_in_progress|length }}</span>
                 </div>
                 {% for task in tasks %}
                     {% if task.status == 'In Progress' %}
@@ -383,10 +377,7 @@
                                 In Progress
                             </div>
                             <div class="task-actions">
-                                <a href="{% url 'admin:veille_app_task_change' task.id %}" class="task-btn edit-btn">
-                                    <i class="fas fa-edit"></i>
-                                    Edit Task
-                                </a>
+                                
                             </div>
                         </div>
                     {% endif %}
@@ -398,7 +389,7 @@
                 <div class="column-header">
                     <i class="fas fa-check-circle header-icon"></i>
                     <h4>Completed</h4>
-                    <span class="task-count">{{ tasks|length }}</span>
+                    <span class="task-count">{{ tasks_completed|length }}</span>
                 </div>
                 {% for task in tasks %}
                     {% if task.status == 'Completed' %}
@@ -418,10 +409,7 @@
                                 Completed
                             </div>
                             <div class="task-actions">
-                                <a href="{% url 'admin:veille_app_task_change' task.id %}" class="task-btn edit-btn">
-                                    <i class="fas fa-edit"></i>
-                                    Edit Task
-                                </a>
+                                
                             </div>
                         </div>
                     {% endif %}
