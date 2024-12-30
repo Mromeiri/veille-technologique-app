@@ -300,26 +300,48 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Content for Task: {{ task.title }}</h1>
-            <a href="{% url 'admin:veille_app_task_change' task.id %}" class="btn btn-primary">Edit Task</a>
+            <a href="{% url 'admin:veille_app_content_add' %}" class="btn btn-primary">Add Content</a>
         </div>
     
-        <div class="content-list">
-            <h3>Related Content</h3>
-            {% if contents %}
-                <ul>
-                    {% for content in contents %}
-                        <li>
-                            <strong><a href="{{ content.url }}" target="_blank">{{ content.title }}</a></strong>
-                            <p>{{ content.summary }}</p>
-                            <p><em>Source: {{ content.source.name }}</em></p>
-                            <p><em>Date Fetched: {{ content.date_fetched|date:"Y-m-d H:i" }}</em></p>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>No content available for this task.</p>
-            {% endif %}
+    
+        <div class="kanban-board">
+
+            <div class="kanban-column" id="to-do-column">
+                <div class="column-header">
+                    <i class="fas fa-list header-icon"></i>
+                    <h4>Content for Task: {{ task.title }}</h4>
+                    
+                </div>
+                {% for content in contents %}
+                    
+                        <div class="kanban-task" id="task-{{ task.id }}" data-task-id="{{ task.id }}" draggable="true" ondragstart="drag(event)">
+                            
+                            <div class="task-title">{{ content.title }}</div>
+                            <div class="task-meta">
+                                <i class="far fa-calendar-alt"></i>
+                                date fetched : {{ content.date_fetched|date:"Y-m-d H:i"  }}
+                            </div>
+                            <div class="task-meta">
+                                <i class="far fa-file-alt"></i>
+                                Summary: {{ content.summary }}
+                            </div>
+                            <div class="task-meta">
+                                <i class="fas fa-link"></i>
+                                Source: {{ content.source.name }}
+                            </div>
+                            
+                            
+                            <div class="task-actions">
+                                <a href="{% url 'admin:veille_app_content_change' content.id %}" class="task-btn edit-btn">
+                                    <i class="fas fa-edit"></i>
+                                    Edit Content
+                                </a>
+                            </div>
+                        </div>
+                    
+                {% endfor %}
+            </div>
+
         </div>
     </div>
      
