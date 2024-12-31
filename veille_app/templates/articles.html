@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArXiv Articles</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f1f1f1;
+            color: #333;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .buttons button {
+            padding: 5px 10px;
+            margin-right: 5px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 14px;
+            border-radius: 3px;
+        }
+        .buttons button.delete-button {
+            background-color: #f44336;
+        }
+        .buttons button:disabled {
+            background-color: #888;
+            cursor: not-allowed;
+        }
+        a {
+            color: #4CAF50;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .no-articles {
+            text-align: center;
+            margin-top: 20px;
+            color: #777;
+        }
+        .summary {
+            display: none;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            margin-top: 5px;
+            color: #555;
+        }
+    </style>
+    <script>
+        function saveArticle(id, title, summary, authors, link, published, content) {
+            fetch('/save_article/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCSRFToken(),
+                },
+                body: new URLSearchParams({
+                    title: title,
+                    summary: summary,
+                    authors: authors,
+                    link: link,
+                    published: published,
+                    content: content,
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                const saveButton = document.querySelector(`#article-${id} .save-button`);
+                saveButton.disabled = true;
+                saveButton.textContent = "Saved";
+            });
+        }
+
+        function deleteArticle(id, title, link) {
+            fetch('/delete_article/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCSRFToken(),
+                },
+                body: new URLSearchParams({
+                    title: title,
+                    link: link,
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                document.getElementById(`article-${id}`).remove();
+            });
+        }
+
+        function toggleSummary(id) {
+            const summary = document.getElementById(`summary-${id}`);
+            const button = document.getElementById(`summary-button-${id}`);
+            if (summary.style.display === "none") {
+                summary.style.display = "block";
+                button.textContent = "Hide Summary";
+            } else {
+                summary.style.display = "none";
+                button.textContent = "View Summary";
+            }
+        }
+
+        function getCSRFToken() {
+            return document.querySelector('[name=csrfmiddlewaretoken]').value;
+        }
+    </script>
+</head>
+<body>
+    <h1>ArXiv Articles</h1>
+    <form method="get">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Rechercher</button>
+    </form>
+    
+    {% if articles %}
+    <table>
+        <thead>
+            <tr>
+                <th>Actions</th>
+                <th>Title</th>
+                <th>Authors</th>
+                <th>Published</th>
+                <th>Link</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for article in articles %}
+            <tr id="article-{{ forloop.counter }}">
+                <td class="buttons">
+                    <button 
+                        class="save-button" 
+                        onclick="saveArticle(
+                            {{ forloop.counter }},
+                            '{{ article.title|escapejs }}',
+                            '{{ article.summary|escapejs }}',
+                            '{{ article.authors|join:", "|escapejs }}',
+                            '{{ article.link }}',
+                            '{{ article.published }}',
+                            '{{ article.content|escapejs }}'
+                        )" 
+                        {% if article.is_saved %} disabled {% endif %}
+                    >
+                        {% if article.is_saved %} Saved {% else %} Save {% endif %}
+                    </button>
+                    <button 
+                        class="delete-button" 
+                        onclick="deleteArticle(
+                            {{ forloop.counter }},
+                            '{{ article.title|escapejs }}',
+                            '{{ article.link }}'
+                        )"
+                    >
+                        Delete
+                    </button>
+                </td>
+                <td>{{ article.title }}</td>
+                <td>{{ article.authors|join:", " }}</td>
+                <td>{{ article.published }}</td>
+                <td><a href="{{ article.link }}" target="_blank">View Article</a></td>
+                <td>
+                    <button 
+                        id="summary-button-{{ forloop.counter }}"
+                        onclick="toggleSummary({{ forloop.counter }})">
+                        View Summary
+                    </button>
+                    <div id="summary-{{ forloop.counter }}" class="summary">
+                        {{ article.summary }}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="no-articles">Aucun article trouvé. Veuillez ajuster votre recherche.</p>
+    {% endif %}
+</body>
+</html>
