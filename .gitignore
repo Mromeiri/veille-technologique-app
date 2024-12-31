@@ -45,3 +45,4 @@ coverage.xml
 # Local settings files
 local_settings.py
 settings_local.py
+db.sqlite3
