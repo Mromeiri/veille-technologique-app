@@ -46,3 +46,7 @@ coverage.xml
 local_settings.py
 settings_local.py
 db.sqlite3
+
+# Your local additions
+env/
+*.pyc
