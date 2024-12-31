@@ -12,5 +12,8 @@ after creating the setup_groups_permissions.py  execute this :
 
 python manage.py setup_groups_permissions
 
+pip install request
+pip install scholarly 
+pip install pdfplumber 
 
 
