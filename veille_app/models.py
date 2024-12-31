@@ -37,6 +37,7 @@ class Task(models.Model):
 
     def __str__(self):
         return self.title
+    
 class Source(models.Model):
     name = models.CharField(max_length=100)
     url = models.URLField(unique=True)
@@ -54,9 +55,37 @@ class Content(models.Model):
     source = models.ForeignKey(Source, related_name="contents", on_delete=models.CASCADE)
     date_fetched = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, related_name="contents", on_delete=models.SET_NULL, null=True, blank=True)
+# id task 
+    def __str__(self):
+        return self.title
+    
+
+
+
+
+class SavedArticle(models.Model):
+    title = models.CharField(max_length=500)
+    link = models.URLField(unique=True)
+    content = models.TextField(default="No content available.")
+    summary = models.TextField(default="No content available.")
+
+   
 
     def __str__(self):
         return self.title
+
+
+class DeletedArticle(models.Model):
+    title = models.CharField(max_length=500)
+    link = models.URLField(unique=True)
+
+    def __str__(self):
+        return self.title
+
+
+
+
+
 
 class TaskAssignment(models.Model):
     task = models.ForeignKey(Task, related_name="assignments", on_delete=models.CASCADE)
