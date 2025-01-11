@@ -408,3 +408,180 @@ def fetch_plosone_articles(request):
             return render(request, 'error.html', {'error_message': f"Erreur lors de la requête. Statut : {response.status_code}"})
 
     return render(request, 'plosone_articles.html', {'form': form, 'articles': articles})
+
+
+
+
+
+
+# # PARTIE ANALYSTE 
+
+
+
+# PARTIE ANALYSTE 
+
+import json
+import re
+import os
+from collections import Counter
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+from django.shortcuts import render
+from django.conf import settings
+import nltk
+
+# Download required NLTK resources
+nltk.download('stopwords')
+nltk.download('punkt')
+
+def analyze_words(request):
+    # Path to articles.json
+    json_path = os.path.join(settings.BASE_DIR, 'C:/Users/ECC/Desktop/veille-technologique-app-cloned/articles.json')  # Adjusted to a relative path
+
+    # Load JSON data
+    with open(json_path, 'r', encoding='ISO-8859-1') as file:
+        data = json.load(file)
+
+    # Combine stopwords
+    extra_stopwords = {"etc", "could", "would", "also"}
+    all_stopwords = set(stopwords.words('english')).union(extra_stopwords)
+
+    # Initialize variables
+    cleaned_text = []
+    word_occurrences = {}
+    article_words = {}
+
+    # Process articles
+    for article_id, entry in enumerate(data):
+        article_name = entry.get('fields', {}).get('title', f"Article {article_id + 1}")
+        if 'content' in entry['fields']:
+            text = entry['fields']['content']
+            text = re.sub(r'[^\w\s]', '', text)  # Remove punctuation
+            tokens = word_tokenize(text.lower())  # Tokenize and convert to lowercase
+            filtered_tokens = [word for word in tokens if word not in all_stopwords]
+            cleaned_text.extend(filtered_tokens)
+
+            # Track word occurrences
+            article_word_count = Counter(filtered_tokens)
+            article_words[article_name] = article_word_count
+            for word in filtered_tokens:
+                word_occurrences.setdefault(word, {}).setdefault(article_name, 0)
+                word_occurrences[word][article_name] += 1
+
+    # Word cloud
+    final_text = " ".join(cleaned_text)
+    wordcloud = WordCloud(width=800, height=400, background_color='white').generate(final_text)
+    wordcloud_path = os.path.join(settings.BASE_DIR, 'static/images/wordcloud.png')
+    os.makedirs(os.path.dirname(wordcloud_path), exist_ok=True)
+    wordcloud.to_file(wordcloud_path)
+
+    # Top words (bar chart)
+    word_counts = Counter(cleaned_text)
+    most_common_words = word_counts.most_common(20)
+
+    # Generate bar chart
+    words, counts = zip(*most_common_words)
+    plt.figure(figsize=(10, 6))
+    plt.bar(words, counts, color='skyblue')
+    plt.xticks(rotation=45, ha='right')
+    plt.title('Top 20 Most Common Words')
+    plt.ylabel('Occurrences')
+    plt.tight_layout()
+    barchart_path = os.path.join(settings.BASE_DIR, 'static/images/barchart.png')
+    plt.savefig(barchart_path)
+    plt.close()
+
+    # Prepare table for word occurrences in each article
+        # Prepare table for word occurrences in each article
+    if word_occurrences:
+        word_table = {
+            word: {
+                article: count for article, count in articles.items()
+            }
+            for word, articles in word_occurrences.items()
+        }
+    else:
+        word_table = {}
+
+    # Pass data to template
+    context = {
+        'wordcloud_url': '/static/images/wordcloud.png',
+        'barchart_url': '/static/images/barchart.png',
+        'most_common_words': most_common_words,
+        'word_table': word_table,
+    }
+    return render(request, 'wordcloud_chart.html', context)
+
+
+
+# # PARTIE ANALYSTE 
+
+# import json
+# import re
+# import os
+# from collections import Counter
+# from nltk.corpus import stopwords
+# from nltk.tokenize import word_tokenize
+# from wordcloud import WordCloud
+# from django.shortcuts import render
+# from django.conf import settings
+# import nltk
+
+# # Download required NLTK resources
+# nltk.download('stopwords')
+# nltk.download('punkt')
+
+# def analyze_words(request):
+#     # Path to articles.json
+#     json_path = os.path.join(settings.BASE_DIR, 'C:/Users/ECC/Desktop/veille-technologique-app-cloned/articles.json')  # Adjusted to a relative path
+
+#     # Load JSON data
+#     with open(json_path, 'r', encoding='ISO-8859-1') as file:
+#         data = json.load(file)
+
+#     # Combine stopwords
+#     extra_stopwords = {"etc", "could", "would", "also"}
+#     all_stopwords = set(stopwords.words('english')).union(extra_stopwords)
+
+#     # Initialize variables
+#     cleaned_text = []
+#     word_occurrences = {}
+
+#     # Process articles
+#     for article_id, entry in enumerate(data):
+#         if 'content' in entry['fields']:
+#             text = entry['fields']['content']
+#             text = re.sub(r'[^\w\s]', '', text)  # Remove punctuation
+#             tokens = word_tokenize(text.lower())  # Tokenize and convert to lowercase
+#             filtered_tokens = [word for word in tokens if word not in all_stopwords]
+#             cleaned_text.extend(filtered_tokens)
+
+#             # Track word occurrences
+#             for word in filtered_tokens:
+#                 word_occurrences.setdefault(word, {}).setdefault(article_id, 0)
+#                 word_occurrences[word][article_id] += 1
+
+#     # Word cloud
+#     final_text = " ".join(cleaned_text)
+#     wordcloud = WordCloud(width=800, height=400, background_color='white').generate(final_text)
+#     wordcloud_path = os.path.join(settings.BASE_DIR, 'static/images/wordcloud.png')
+    
+#     # Ensure the directory exists
+#     os.makedirs(os.path.dirname(wordcloud_path), exist_ok=True)
+    
+#     # Save the word cloud image
+#     wordcloud.to_file(wordcloud_path)
+
+#     # Top words
+#     word_counts = Counter(cleaned_text)
+#     most_common_words = word_counts.most_common(20)
+
+#     # Pass data to template
+#     context = {
+#         'wordcloud_url': '/static/images/wordcloud.png',  # Use a relative URL for templates
+#         'most_common_words': most_common_words,
+#         'word_occurrences': word_occurrences,
+#     }
+#     return render(request, 'wordcloud_chart.html', context)
