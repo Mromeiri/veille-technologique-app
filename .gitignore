@@ -50,3 +50,12 @@ db.sqlite3
 # Your local additions
 env/
 *.pyc
+veille/__pycache__/__init__.cpython-312.pyc
+veille/__pycache__/urls.cpython-312.pyc
+veille/__pycache__/__init__.cpython-312.pyc
+veille/__pycache__/__init__.cpython-312.pyc
+veille/__pycache__/urls.cpython-312.pyc
+veille/__pycache__/wsgi.cpython-312.pyc
+veille_app/migrations/__pycache__/__init__.cpython-312.pyc
+veille_app/migrations/__pycache__/0002_remove_task_assigned_to_taskassignment.cpython-312.pyc
+veille_app/migrations/__pycache__/0002_task_is_in_progress_task_priority.cpython-312.pyc
