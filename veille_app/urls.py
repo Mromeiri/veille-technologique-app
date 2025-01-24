@@ -32,6 +32,9 @@ urlpatterns = [
     path('delete_article/', delete_article, name='delete_article'),
     path('plosarticle/', fetch_plosone_articles, name='plos_article'),
 
+    # test pour l'analyste : 
+     path('analyze/', analyze_words, name='analyze_words'),
+
 
 ]
 # >>>>>>> origin/main
