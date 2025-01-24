@@ -316,7 +316,7 @@
                 <div class="column-header">
                     <i class="fas fa-list header-icon"></i>
                     <h4>To Do</h4>
-                    <span class="task-count">{{ tasks|length }}</span>
+                    <span class="task-count">{{ tasks_todo|length }}</span>
                 </div>
                 {% for task in tasks %}
                     {% if task.status == 'To Do' %}
@@ -351,7 +351,7 @@
                 <div class="column-header">
                     <i class="fas fa-spinner header-icon"></i>
                     <h4>In Progress</h4>
-                    <span class="task-count">{{ tasks|length }}</span>
+                    <span class="task-count">{{ tasks_in_progress|length }}</span>
                 </div>
                 {% for task in tasks %}
                     {% if task.status == 'In Progress' %}
@@ -385,8 +385,8 @@
             <div class="kanban-column" id="completed-column" ondrop="drop(event)" ondragover="allowDrop(event)">
                 <div class="column-header">
                     <i class="fas fa-check-circle header-icon"></i>
-                    <h4>Completed</h4>
-                    <span class="task-count">{{ tasks|length }}</span>
+                    <h4>Completed </h4>
+                    <span class="task-count">{{ tasks_completed|length }}</span>
                 </div>
                 {% for task in tasks %}
                     {% if task.status == 'Completed' %}

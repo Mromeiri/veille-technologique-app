@@ -1,0 +1,430 @@
+{% extends "layouts/base.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+
+{% block title %}Kanban Board{% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanban Board</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --todo-color: #818cf8;
+            --progress-color: #fb923c;
+            --completed-color: #4ade80;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            margin: 0;
+            padding: 20px;
+            color: #1e293b;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .board-header {
+            margin-bottom: 2rem;
+            padding: 1rem 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .board-header h1 {
+            font-size: 1.875rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        .board-header i {
+            font-size: 2rem;
+            margin-right: 1rem;
+            color: #6366f1;
+        }
+
+        .kanban-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 0.5rem;
+        }
+
+        .kanban-column {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 1.5rem;
+            min-height: 500px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            border-top: 4px solid #e2e8f0;
+        }
+
+        #to-do-column { border-top-color: var(--todo-color); }
+        #in-progress-column { border-top-color: var(--progress-color); }
+        #completed-column { border-top-color: var(--completed-color); }
+
+        .column-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .column-header .header-icon {
+            margin-right: 0.75rem;
+            font-size: 1.25rem;
+        }
+
+        #to-do-column .header-icon { color: var(--todo-color); }
+        #in-progress-column .header-icon { color: var(--progress-color); }
+        #completed-column .header-icon { color: var(--completed-color); }
+
+        .column-header h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .column-header .task-count {
+            margin-left: auto;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.875rem;
+            color: #ffffff;
+        }
+
+        #to-do-column .task-count { background: var(--todo-color); }
+        #in-progress-column .task-count { background: var(--progress-color); }
+        #completed-column .task-count { background: var(--completed-color); }
+
+        .kanban-task {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: grab;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .kanban-task:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .kanban-task:active {
+            cursor: grabbing;
+        }
+
+        .task-priority {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            background-color: #f1f5f9;
+            color: #64748b;
+        }
+
+        .task-priority i {
+            font-size: 0.875rem;
+        }
+
+        .task-priority[data-priority="High"] {
+            background-color: #fee2e2;
+            color: #ef4444;
+        }
+
+        .task-priority[data-priority="Medium"] {
+            background-color: #fef3c7;
+            color: #f59e0b;
+        }
+
+        .task-priority[data-priority="Low"] {
+            background-color: #dcfce7;
+            color: #22c55e;
+        }
+
+        .task-title {
+            font-size: 0.975rem;
+            font-weight: 500;
+            color: #334155;
+            margin-bottom: 0.75rem;
+            padding-right: 1.5rem;
+        }
+
+        .task-meta {
+            display: flex;
+            align-items: center;
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+
+        .task-meta i {
+            margin-right: 0.5rem;
+        }
+
+        .task-tags {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .task-tag {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .task-status {
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid #f1f5f9;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+
+        .task-status i {
+            margin-right: 0.5rem;
+        }
+
+        .not-started { color: var(--todo-color); }
+        .in-progress { color: var(--progress-color); }
+        .completed { color: var(--completed-color); }
+
+        .drag-over {
+            background-color: #f8fafc;
+            border: 2px dashed #94a3b8;
+        }
+
+        @media (max-width: 768px) {
+            .kanban-board {
+                grid-template-columns: 1fr;
+                padding: 0;
+            }
+
+            .kanban-column {
+                margin-bottom: 1rem;
+            }
+        }
+        .board-header {
+            margin-bottom: 2rem;
+            padding: 1rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Changed to space-between */
+        }
+
+        .board-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .add-task-btn {
+            background-color: #4f46e5;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .add-task-btn:hover {
+            background-color: #4338ca;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .task-btn {
+            padding: 0.375rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: all 0.2s;
+        }
+
+        .edit-btn {
+            background-color: #f1f5f9;
+            color: #475569;
+        }
+
+        .edit-btn:hover {
+            background-color: #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="#">auteur</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">mots-clés</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">sentiment</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link disabled" aria-disabled="true">custom</a>
+            </li>
+          </ul>
+          
+              <h1>Authors Analysis</h1>
+          
+              <h2>Authors vs Year</h2>
+              <img src="{{ authors_year_chart }}" alt="Authors vs Year Chart" style="width:100%; max-width:800px;">
+          
+              <h2>Top Authors by Occurrence</h2>
+              <img src="{{ authors_occurrence_chart }}" alt="Authors vs Occurrence Chart" style="width:100%; max-width:800px;">
+          
+              <h2>Authors and Their Articles</h2>
+              <table>
+                  <thead>
+                      <tr>
+                          <th>Author</th>
+                          <th>Articles</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                    {% for author, articles in authors_articles.items %}
+                    <tr>
+                        <td>{% if author == "N/A" %}<i>{{ author }}</i>{% else %}{{ author }}{% endif %}</td>
+                        <td>
+                            <ul>
+                                {% for article in articles %}
+                                <li><a href="{{ article.url }}" target="_blank">{{ article.title }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                
+              </table>
+          
+          
+
+    </div>
+
+    <script>
+        let draggedTask = null;
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+            const column = ev.target.closest('.kanban-column');
+            if (column) {
+                column.classList.add('drag-over');
+            }
+        }
+
+        function drag(ev) {
+            draggedTask = ev.target;
+            ev.dataTransfer.setData("text", ev.target.id);
+            draggedTask.classList.add('dragging');
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            const column = ev.target.closest('.kanban-column');
+            if (column) {
+                column.classList.remove('drag-over');
+                draggedTask.classList.remove('dragging');
+                let targetColumn = column.id;
+                let taskId = draggedTask.getAttribute("data-task-id");
+                
+                updateTaskStatus(taskId, targetColumn);
+                updateTaskInUI(draggedTask, targetColumn);
+            }
+        }
+
+        function updateTaskStatus(taskId, newStatus) {
+            fetch(`/update_task_status/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    task_id: taskId,
+                    status: newStatus
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        function updateTaskInUI(taskElement, columnId) {
+            const column = document.getElementById(columnId);
+            if (column) {
+                column.appendChild(taskElement);
+            }
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>
+{% endblock %}

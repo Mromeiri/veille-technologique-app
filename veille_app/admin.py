@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.models import User, Group
-from .models import Category, Source, Content, Task, TaskAssignment, Report
+from .models import Category, Source, Content, Task, TaskAssignment, Report,SavedArticle
 
 # Custom Restricted Admin Site
 class RestrictedAdminSite(admin.AdminSite):
@@ -50,16 +50,18 @@ class TaskAssignmentAdmin(admin.ModelAdmin):
     search_fields = ('task__title', 'user__username')
     ordering = ('-assigned_at',)
 
-@admin.register(Report)
-class ReportAdmin(admin.ModelAdmin):
-    list_display = ('title', 'created_at', 'created_by', 'related_task')
-    list_filter = ('created_at', 'created_by')
-    search_fields = ('title', 'content')
-    ordering = ('-created_at',)
+
+
+@admin.register(SavedArticle)
+class SavedArticleAdmin(admin.ModelAdmin):
+    list_display = ('title', 'link', 'content', 'summary')
+    
+
 
 # Register models to Restricted Admin Site
 restricted_admin_site.register(Content, ContentAdmin)
 restricted_admin_site.register(Source, SourceAdmin)
 restricted_admin_site.register(Task, TaskAdmin)
-restricted_admin_site.register(Report, ReportAdmin)
+
 restricted_admin_site.register(Category, CategoryAdmin)
+restricted_admin_site.register(SavedArticle, SavedArticleAdmin)

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .author-stats-table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .author-stats-table th, .author-stats-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>Article Report</h1>
+    
+    <h2>Author Statistics</h2>
+    <table class="author-stats-table">
+        <thead>
+            <tr>
+                <th>Author</th>
+                <th>Article Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for author in author_data %}
+                <tr>
+                    <td>{{ author.author }}</td>
+                    <td>{{ author.count }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <h2>Articles</h2>
+    {% for article in articles %}
+        <h3>{{ article.title }}</h3>
+        <p><strong>Author(s):</strong> {{ article.authors }}</p>
+        <p><strong>Summary:</strong> {{ article.summary }}</p>
+        <p><strong>Keywords:</strong>
+            <ul>
+                {% for keyword, count in article.keywords %}
+                    <li>{{ keyword }}: {{ count }}</li>
+                {% endfor %}
+            </ul>
+        </p>
+        <p><strong>Content:</strong> {{ article.content }}</p>
+        <p><strong>Link:</strong> <a href="{{ article.link }}" target="_blank">{{ article.link }}</a></p>
+        <hr>
+    {% endfor %}
+    
+    <h2>Top Authors Chart</h2>
+    <img src="data:image/png;base64,{{ image_base64 }}" alt="Author Chart">
+</body>
+</html>

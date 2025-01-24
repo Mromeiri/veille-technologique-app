@@ -2,7 +2,8 @@ cd veille-technologique-app-main
 python -m venv env
 .\env\Scripts\activate
 python.exe -m pip install --upgrade pip
-pip install django
+pip install django 
+pip install pdfplumber
 pip install django-admin-soft-dashboard
 python manage.py makemigrations
 python manage.py migrate
@@ -12,8 +13,5 @@ after creating the setup_groups_permissions.py  execute this :
 
 python manage.py setup_groups_permissions
 
-pip install request
-pip install scholarly 
-pip install pdfplumber 
 
 

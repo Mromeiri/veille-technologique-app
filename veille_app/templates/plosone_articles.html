@@ -1,3 +1,11 @@
+{% extends "layouts/base.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -190,7 +198,7 @@
                 <td>
                     <button 
                         id="summary-button-{{ forloop.counter }}"
-                        onclick="toggleSummary({{ forloop.counter }})">
+                        onclick="toggleSummary({{ forloop.counter }}) " >
                         View Summary
                     </button>
                     <div id="summary-{{ forloop.counter }}" class="summary">
@@ -206,3 +214,4 @@
     {% endif %}
 </body>
 </html>
+{% endblock %}

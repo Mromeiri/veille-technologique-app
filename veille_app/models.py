@@ -68,6 +68,7 @@ class SavedArticle(models.Model):
     link = models.URLField(unique=True)
     content = models.TextField(default="No content available.")
     summary = models.TextField(default="No content available.")
+    author = models.TextField(default="No author available.")  # Updated default
 
    
 
